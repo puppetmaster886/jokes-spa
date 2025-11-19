@@ -6,6 +6,7 @@ import Joke from "../shared/Joke";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
 import { setJokeId } from "../../../../redux/features/cardSlice";
 import IdSelector from "../shared/IdSelector";
+import QueryState from "../shared/QueryState";
 
 /**
  * JokeById component
@@ -17,15 +18,15 @@ const JokeById = () => {
   const dispatch = useAppDispatch();
   const { data, error, isLoading } = useGetJokeByIdQuery(jokeId.toString());
 
-  //TODO: loading, error, no data states
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error</div>;
-  if (!data) return <div>No jokes here!</div>;
-
   return (
-    <>
+    <QueryState
+      isLoading={isLoading}
+      error={error}
+      isEmpty={!data}
+      emptyMessage="No jokes found for this id."
+    >
       <CardContent sx={{ marginLeft: "4rem", height: "Calc(100% - 160px)" }}>
-        <Joke joke={data} />
+        {!!data && <Joke joke={data} />}
       </CardContent>
       <CardActions
         style={{
@@ -42,7 +43,7 @@ const JokeById = () => {
           max={406}
         />
       </CardActions>
-    </>
+    </QueryState>
   );
 };
 

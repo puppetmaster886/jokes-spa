@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import RandomJoke from "./components/views/RandomJoke";
 import { Grid } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
@@ -20,7 +20,15 @@ import {
 /**
  * Default cards to be displayed on the home page.
  */
-const defaultCards = [
+type CardConfig = {
+  state: CardStates;
+  title: string;
+  Icon: React.ReactElement;
+  defaultOrder: number;
+  component: React.ReactNode;
+};
+
+const defaultCards: CardConfig[] = [
   {
     state: CardStates.Random,
     title: "Random Joke",
@@ -61,14 +69,21 @@ export default function HomePage() {
   const currentCardState = useAppSelector(
     (state) => state.cardReducer.cardState
   );
-  const sortedCards = [...defaultCards].sort((a, b) =>
-    currentCardState === a.state ? -1 : a.defaultOrder - b.defaultOrder
+
+  const sortedCards = useMemo(
+    () =>
+      [...defaultCards].sort((a, b) =>
+        currentCardState === a.state ? -1 : a.defaultOrder - b.defaultOrder
+      ),
+    [currentCardState]
   );
+
+  const resetSelectedCard = useCallback(() => {
+    dispatch(setCardState(null));
+  }, [dispatch]);
   return (
     <div
-      onClick={() => {
-        dispatch(setCardState(null));
-      }}
+      onClick={resetSelectedCard}
       style={{ height: "100vh" }}
     >
       <Flipper
@@ -91,7 +106,7 @@ export default function HomePage() {
               <AnimatedCard
                 key={card.state}
                 title={card.title}
-                cardSate={card.state}
+                cardState={card.state}
                 icon={card.Icon}
                 component={card.component}
               ></AnimatedCard>

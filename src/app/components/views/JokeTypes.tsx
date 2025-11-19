@@ -14,12 +14,9 @@ import {
   useGetTypesQuery,
 } from "../../../../redux/services/jokesApi";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
-import {
-  CardStates,
-  setCardState,
-  setJokeType,
-} from "../../../../redux/features/cardSlice";
+import { setJokeType } from "../../../../redux/features/cardSlice";
 import Joke from "../shared/Joke";
+import QueryState from "../shared/QueryState";
 
 const JokeTypes = () => {
   const jokeType = useAppSelector((state) => state.cardReducer.jokeType);
@@ -38,17 +35,16 @@ const JokeTypes = () => {
     refetch: refetchJoke,
   } = useGetJokesByTypeQuery(jokeType);
 
-  //TODO: loading, error, no data states
-  if (isLoadingTypesOfJokes || isLoadingJoke) return <div>Loading...</div>;
-  if (TypesOfJokesError || JokeError) return <div>Error</div>;
-  if (!typesOfJokes || !joke) return <div>No jokes here!</div>;
-
   return (
-    <>
+    <QueryState
+      isLoading={isLoadingTypesOfJokes || isLoadingJoke}
+      error={TypesOfJokesError || JokeError}
+      isEmpty={!typesOfJokes || !joke}
+      emptyMessage="No jokes available for this category."
+    >
       <CardContent style={{ height: "Calc(100% - 160px)" }}>
         <Grid container spacing={2} direction="column">
           <Grid item style={{ alignSelf: "center" }}>
-            {/* TODO: improve experience in mobile */}
             <ToggleButtonGroup
               color="primary"
               value={jokeType}
@@ -58,7 +54,7 @@ const JokeTypes = () => {
               }}
               aria-label="Types of Jokes"
             >
-              {typesOfJokes.map((type) => (
+              {typesOfJokes?.map((type) => (
                 <ToggleButton key={type} value={type}>
                   {type}
                 </ToggleButton>
@@ -87,7 +83,7 @@ const JokeTypes = () => {
           other joke
         </Button>
       </CardActions>
-    </>
+    </QueryState>
   );
 };
 

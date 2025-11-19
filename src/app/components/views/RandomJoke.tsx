@@ -3,6 +3,7 @@
 import { Button, CardActions, CardContent } from "@mui/material";
 import { useGetRandomJokeQuery } from "../../../../redux/services/jokesApi";
 import Joke from "../shared/Joke";
+import QueryState from "../shared/QueryState";
 
 /**
  * RandomJoke component
@@ -12,15 +13,15 @@ import Joke from "../shared/Joke";
 const RandomJoke = () => {
   const { data, error, isLoading, refetch } = useGetRandomJokeQuery();
 
-  //TODO: loading, error, no data states
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error</div>;
-  if (!data) return <div>No jokes here!</div>;
-
   return (
-    <>
+    <QueryState
+      isLoading={isLoading}
+      error={error}
+      isEmpty={!data}
+      emptyMessage="No jokes available right now."
+    >
       <CardContent sx={{ marginLeft: "4rem", height: "Calc(100% - 160px)" }}>
-        <Joke joke={data} />
+        {!!data && <Joke joke={data} />}
       </CardContent>
       <CardActions
         style={{
@@ -38,7 +39,7 @@ const RandomJoke = () => {
           New joke
         </Button>
       </CardActions>
-    </>
+    </QueryState>
   );
 };
 

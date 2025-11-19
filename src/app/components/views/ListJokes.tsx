@@ -5,6 +5,7 @@ import { useGetJokesPaginatedQuery } from "../../../../redux/services/jokesApi";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { setCurrentPage, setSort } from "../../../../redux/features/cardSlice";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hooks";
+import QueryState from "../shared/QueryState";
 
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", width: 20 },
@@ -23,37 +24,39 @@ const ListJokes = () => {
     sort: currentSort,
   });
 
-  //TODO: loading, error, no data states
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error</div>;
-  if (!data || !data.jokes.length) return <div>No jokes here!</div>;
-
   return (
-    <CardContent>
-      <DataGrid
-        rows={data.jokes}
-        columns={columns}
-        sx={{ fontSize: 10, m: 0, p: 0 }}
-        rowHeight={30}
-        columnHeaderHeight={30}
-        initialState={{
-          pagination: { paginationModel: { pageSize: 10, page: 0 } },
-        }}
-        autoHeight
-        paginationMode="server"
-        rowCount={data.totalJokes}
-        onPaginationModelChange={({ page }) => {
-          dispatch(setCurrentPage(page));
-        }}
-        paginationModel={{ pageSize: 10, page: currentPage }}
-        onSortModelChange={(sortModel) => {
-          dispatch(setSort(sortModel));
-          dispatch(setCurrentPage(0));
-        }}
-        disableColumnSelector
-        disableColumnMenu
-      />
-    </CardContent>
+    <QueryState
+      isLoading={isLoading}
+      error={error}
+      isEmpty={!data || !data.jokes.length}
+      emptyMessage="No jokes found with the current filters."
+    >
+      <CardContent>
+        <DataGrid
+          rows={data?.jokes || []}
+          columns={columns}
+          sx={{ fontSize: 10, m: 0, p: 0 }}
+          rowHeight={30}
+          columnHeaderHeight={30}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 10, page: 0 } },
+          }}
+          autoHeight
+          paginationMode="server"
+          rowCount={data?.totalJokes || 0}
+          onPaginationModelChange={({ page }) => {
+            dispatch(setCurrentPage(page));
+          }}
+          paginationModel={{ pageSize: 10, page: currentPage }}
+          onSortModelChange={(sortModel) => {
+            dispatch(setSort(sortModel));
+            dispatch(setCurrentPage(0));
+          }}
+          disableColumnSelector
+          disableColumnMenu
+        />
+      </CardContent>
+    </QueryState>
   );
 };
 
