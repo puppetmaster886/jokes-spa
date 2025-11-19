@@ -9,13 +9,13 @@ import { cloneElement } from "react";
 /**
  * AnimatedCard component.
  * @param title - Title of the card.
- * @param cardSate - State of the card. Defined in the CardStates enum.
+ * @param cardState - State of the card. Defined in the CardStates enum.
  * @param icon - Icon of the card.
  * @param component - Component to be displayed on the card, if not provided, children will be used.
  */
 const AnimatedCard = ({
   title,
-  cardSate,
+  cardState,
   children,
   icon,
   component,
@@ -24,22 +24,24 @@ const AnimatedCard = ({
     (state) => state.cardReducer.cardState
   );
   const dispatch = useAppDispatch();
-  const isCardSelected = currentCardState === cardSate;
+  const isCardSelected = currentCardState === cardState;
 
   return (
-    <Flipped key={cardSate} flipId={cardSate} stagger="card">
+    <Flipped key={cardState} flipId={cardState} stagger="card">
       <Grid item>
         <Card
           variant="outlined"
+          aria-pressed={isCardSelected}
           onClick={(e) => {
-            dispatch(setCardState(cardSate));
+            dispatch(setCardState(cardState));
             e.stopPropagation();
           }}
-          style={{
-            maxWidth: isCardSelected ? "632px" : undefined,
-            width: !isCardSelected ? "200px" : "Calc( 100vw - 2rem )",
-            height: isCardSelected ? "500px" : "200px",
-            //TODO: work on responsive for mobile
+          sx={{
+            maxWidth: isCardSelected ? 632 : undefined,
+            width: isCardSelected ? "Calc( 100vw - 2rem )" : 200,
+            height: isCardSelected ? 500 : 200,
+            cursor: "pointer",
+            transition: "all 0.35s ease",
           }}
         >
           {isCardSelected ? (
@@ -72,7 +74,7 @@ const AnimatedCard = ({
 
 interface AnimatedCardProps {
   title: string;
-  cardSate: CardStates;
+  cardState: CardStates;
   children?: React.ReactNode;
   icon?: React.ReactElement;
   component?: React.ReactNode;
